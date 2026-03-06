@@ -746,7 +746,7 @@ function startListening() {
   recognition.onresult = (e) => {
     let t = ""; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript;
     latestTranscript = t;
-    document.getElementById("live-transcript").textContent = '"' + toWords(currentNumber, practiceLang) + '"';
+    document.getElementById("live-transcript").textContent = '"' + t + '"';
   };
   recognition.onerror = (e) => {
     if (e.error==="no-speech") return;
@@ -760,14 +760,13 @@ function doneSpeaking() {
   const heard = latestTranscript.trim();
   if (!heard) { showError(UI[interfaceLang].noSpeech); return; }
   heardText = heard;
-  const displayHeard = toWords(currentNumber, practiceLang);
-  document.getElementById("confirm-heard-text").textContent = '"' + displayHeard + '"';
+  document.getElementById("confirm-heard-text").textContent = '"' + heard + '"';
   showMicStage("confirm");
 }
 
 function confirmHeard() {
   const correct = isMatch(heardText, currentNumber, practiceLang);
-  document.getElementById("result-heard-text").textContent = '"' + toWords(currentNumber, practiceLang) + '"';
+  document.getElementById("result-heard-text").textContent = '"' + heardText + '"';
   document.getElementById("correct-answer-text").textContent = toWords(currentNumber, practiceLang);
   document.getElementById("result-correct").classList.toggle("hidden", !correct);
   document.getElementById("result-wrong").classList.toggle("hidden", correct);
