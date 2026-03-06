@@ -9,8 +9,9 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --purple: #6837B7;
-    --purple-light: #a78bfa;
+    --blue: #2B6FED;
+    --blue-light: #6BA3F5;
+    --blue-glow: rgba(43,111,237,0.25);
     --green: #16a34a;
     --red: #dc2626;
     --orange: #ea580c;
@@ -25,50 +26,50 @@
 
   /* ── LIGHT THEME ── */
   body.light {
-    background: linear-gradient(150deg, #fef9f0 0%, #fdf0e8 50%, #f5f0ff 100%);
-    color: #1e1b2e;
-    --text: #1e1b2e;
-    --text-muted: #9ca3af;
+    background: linear-gradient(150deg, #f0f4ff 0%, #e8f0fe 50%, #f5f8ff 100%);
+    color: #0d1b2e;
+    --text: #0d1b2e;
+    --text-muted: #6b7280;
     --text-label: #374151;
     --card-bg: #ffffff;
-    --card-border: #ede9fe;
-    --card-shadow: 0 8px 40px rgba(104,55,183,0.1), 0 2px 8px rgba(0,0,0,0.06);
-    --input-bg: #f8f7ff;
-    --input-border: #ddd6fe;
-    --divider: #ede9fe;
+    --card-border: #d0e0fc;
+    --card-shadow: 0 8px 40px rgba(43,111,237,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    --input-bg: #f0f5ff;
+    --input-border: #bdd4fb;
+    --divider: #ddeafd;
     --range-inactive-bg: #fff;
     --range-inactive-color: #6b7280;
-    --range-border: #d4c8f0;
-    --feature-card-bg: #f5f0ff;
-    --feature-card-border: #ddd6fe;
-    --footer-color: #c4b5fd;
+    --range-border: #bdd4fb;
+    --feature-card-bg: #eef4ff;
+    --feature-card-border: #bdd4fb;
+    --footer-color: #93b8f8;
     --toggle-bg: #fff;
-    --toggle-border: #ede9fe;
-    --answer-color: #6d28d9;
+    --toggle-border: #d0e0fc;
+    --answer-color: #1a5ccc;
   }
 
   /* ── DARK THEME ── */
   body.dark {
-    background: linear-gradient(150deg, #0f0c1a 0%, #1a1025 50%, #0d1020 100%);
-    color: #e9e4f8;
-    --text: #e9e4f8;
-    --text-muted: #7c6fa0;
-    --text-label: #c4b5fd;
-    --card-bg: #1e1830;
-    --card-border: #2d2450;
-    --card-shadow: 0 8px 40px rgba(0,0,0,0.4);
-    --input-bg: #2a2040;
-    --input-border: #3d3060;
-    --divider: #2d2450;
-    --range-inactive-bg: #1e1830;
-    --range-inactive-color: #7c6fa0;
-    --range-border: #2d2450;
-    --feature-card-bg: #2a1f4a;
-    --feature-card-border: #3d2d70;
-    --footer-color: #4a3d70;
-    --toggle-bg: #2a2040;
-    --toggle-border: #3d3060;
-    --answer-color: #a78bfa;
+    background: linear-gradient(150deg, #060e1a 0%, #0a1628 50%, #071020 100%);
+    color: #e4eefb;
+    --text: #e4eefb;
+    --text-muted: #5a7a9e;
+    --text-label: #7eb3f5;
+    --card-bg: #0d1e35;
+    --card-border: #1a3558;
+    --card-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(43,111,237,0.1);
+    --input-bg: #0a1828;
+    --input-border: #1a3558;
+    --divider: #1a3558;
+    --range-inactive-bg: #0d1e35;
+    --range-inactive-color: #5a7a9e;
+    --range-border: #1a3558;
+    --feature-card-bg: #0d2040;
+    --feature-card-border: #1a3a6a;
+    --footer-color: #2a4e7a;
+    --toggle-bg: #0d1e35;
+    --toggle-border: #1a3558;
+    --answer-color: #6BA3F5;
   }
 
   .screen { display: none; }
@@ -119,11 +120,11 @@
     transition: all 0.2s; text-align: left; width: 100%; font-family: var(--font);
     opacity: 0.6; margin-bottom: 10px;
   }
-  .lang-row.active { border-color: var(--purple); background: var(--feature-card-bg); opacity: 1; }
+  .lang-row.active { border-color: var(--blue); background: var(--feature-card-bg); opacity: 1; }
   .lang-row-name { font-size: 15px; font-weight: 600; color: var(--text); }
-  .lang-row.active .lang-row-name { color: var(--purple); }
+  .lang-row.active .lang-row-name { color: var(--blue); }
   .lang-row-sub { font-size: 13px; color: var(--text-muted); }
-  .lang-row-check { margin-left: auto; color: var(--purple); font-size: 18px; display: none; }
+  .lang-row-check { margin-left: auto; color: var(--blue); font-size: 18px; display: none; }
   .lang-row.active .lang-row-check { display: block; }
 
   /* ── FEATURE CARD ── */
@@ -132,9 +133,9 @@
     border-radius: 16px; padding: 18px 20px; margin-bottom: 28px;
     display: flex; align-items: center; gap: 16px;
   }
-  .feature-card-title { font-size: 16px; font-weight: 700; color: var(--purple); margin-bottom: 3px; }
+  .feature-card-title { font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 3px; }
   .feature-card-desc { font-size: 13px; color: var(--text-muted); }
-  .mvp-badge { margin-left: auto; background: var(--purple); color: #fff; font-size: 11px; border-radius: 100px; padding: 3px 10px; white-space: nowrap; }
+  .mvp-badge { margin-left: auto; background: var(--blue); color: #fff; font-size: 11px; border-radius: 100px; padding: 3px 10px; white-space: nowrap; }
 
   /* ── BUTTONS ── */
   .btn { border: none; border-radius: 100px; color: #fff; cursor: pointer; font-family: var(--font); font-weight: 600; letter-spacing: 0.3px; transition: opacity 0.2s; }
@@ -142,14 +143,14 @@
   .btn-lg { padding: 14px 36px; font-size: 16px; }
   .btn-sm { padding: 10px 24px; font-size: 14px; }
   .btn-full { width: 100%; font-size: 18px; padding: 16px; }
-  .btn-purple { background: var(--purple); }
+  .btn-blue { background: var(--blue); }
   .btn-green { background: var(--green); }
   .btn-red { background: var(--red); }
   .btn-gray { background: #9ca3af; }
   .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
   /* ── MIC BUTTON ── */
-  .mic-btn { width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--purple); transition: all 0.2s; flex-shrink: 0; }
+  .mic-btn { width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--blue); transition: all 0.2s; flex-shrink: 0; }
 
   /* ── RANGE PILLS ── */
   .range-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 480px; margin-bottom: 24px; }
@@ -158,7 +159,7 @@
     background: var(--range-inactive-bg); color: var(--range-inactive-color);
     cursor: pointer; font-size: 17px; font-family: var(--font); transition: all 0.2s;
   }
-  .range-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 2px 8px rgba(104,55,183,0.3); }
+  .range-pill.active { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 8px rgba(43,111,237,0.3); }
 
   /* ── SETTINGS BAR ── */
   .settings-bar { display: flex; align-items: flex-start; justify-content: center; gap: 32px; margin-bottom: 20px; }
@@ -172,8 +173,8 @@
 
   /* ── MIC ANIMATION ── */
   .mic-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-  .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(104,55,183,0.3); animation: ripple 1.2s infinite; }
-  .mic-core { width: 56px; height: 56px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; animation: pulse 1.2s infinite; }
+  .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(43,111,237,0.3); animation: ripple 1.2s infinite; }
+  .mic-core { width: 56px; height: 56px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; animation: pulse 1.2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
 
@@ -239,7 +240,7 @@
       <div class="mvp-badge">MVP</div>
     </div>
 
-    <button class="btn btn-purple btn-full" onclick="startPractice()" id="start-btn">Start practising →</button>
+    <button class="btn btn-blue btn-full" onclick="startPractice()" id="start-btn">Start practising →</button>
   </div>
 
   <p class="footer-text" id="welcome-footer">Lingo Practika · Lingo Numero</p>
@@ -286,7 +287,7 @@
     <div id="stage-empty">
       <div class="practice-prompt-flag" id="prompt-flag"></div>
       <p class="muted" id="prompt-text" style="margin-bottom:32px;font-size:16px"></p>
-      <button class="btn btn-purple btn-lg" onclick="generate()" id="generate-btn">Generate number</button>
+      <button class="btn btn-blue btn-lg" onclick="generate()" id="generate-btn">Generate number</button>
     </div>
 
     <!-- Active practice -->
@@ -297,7 +298,7 @@
       <!-- idle -->
       <div id="mic-stage-idle" class="stage active">
         <div class="btn-row">
-          <button class="btn btn-purple btn-lg" onclick="revealAnswer()" id="reveal-btn">Reveal answer</button>
+          <button class="btn btn-blue btn-lg" onclick="revealAnswer()" id="reveal-btn">Reveal answer</button>
           <button class="mic-btn" onclick="startListening()" title="Speak your answer">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="22" x2="16" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
@@ -312,7 +313,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="22" x2="16" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
         </div>
-        <p style="color:var(--purple);font-size:15px;font-style:italic;margin-bottom:8px" id="listening-prompt-text">Listening… speak your answer</p>
+        <p style="color:var(--blue);font-size:15px;font-style:italic;margin-bottom:8px" id="listening-prompt-text">Listening… speak your answer</p>
         <p class="muted" id="live-transcript" style="font-size:14px;font-style:italic;margin-bottom:16px;min-height:20px"></p>
         <div class="btn-row">
           <button class="btn btn-green btn-sm" onclick="doneSpeaking()" id="done-speaking-btn">✓ Done speaking</button>
@@ -329,7 +330,7 @@
         <p class="muted" id="did-i-hear-text" style="font-size:15px;margin-bottom:14px">Did I hear you correctly?</p>
         <div class="btn-row">
           <button class="btn btn-green btn-sm" onclick="confirmHeard()" id="yes-right-btn">✓ Yes, that's right</button>
-          <button class="btn btn-purple btn-sm" onclick="retryListening()" id="try-again-confirm-btn">🎤 Try again</button>
+          <button class="btn btn-blue btn-sm" onclick="retryListening()" id="try-again-confirm-btn">🎤 Try again</button>
         </div>
       </div>
 
@@ -352,7 +353,7 @@
         <div id="result-wrong" class="hidden">
           <p style="color:var(--orange);font-weight:600;font-size:18px;margin-bottom:16px" id="not-quite-text">Not quite — keep practising!</p>
           <div class="btn-row" id="result-wrong-btns">
-            <button class="btn btn-purple btn-sm" onclick="retryListening()" id="try-again-result-btn">🎤 Try again</button>
+            <button class="btn btn-blue btn-sm" onclick="retryListening()" id="try-again-result-btn">🎤 Try again</button>
             <button class="btn btn-red btn-sm" onclick="markAnswer(false)" id="mark-wrong-btn2">✗ Mark wrong</button>
           </div>
         </div>
@@ -362,7 +363,7 @@
       <div id="mic-stage-error" class="stage">
         <p style="color:var(--red);font-size:14px;margin-bottom:12px" id="error-text"></p>
         <div class="btn-row">
-          <button class="btn btn-purple btn-sm" onclick="startListening()" id="try-again-error-btn">🎤 Try again</button>
+          <button class="btn btn-blue btn-sm" onclick="startListening()" id="try-again-error-btn">🎤 Try again</button>
           <button class="btn btn-gray btn-sm" onclick="resetMic()" id="dismiss-btn">Dismiss</button>
         </div>
       </div>
@@ -379,7 +380,7 @@
 
       <!-- answered -->
       <div id="stage-answered" class="hidden" style="margin-top:16px">
-        <button class="btn btn-purple btn-lg" onclick="generate()" id="next-btn">Next number →</button>
+        <button class="btn btn-blue btn-lg" onclick="generate()" id="next-btn">Next number →</button>
       </div>
     </div>
   </div>
@@ -390,7 +391,7 @@
     <span class="score-divider">|</span>
     <span>✗ <strong id="score-incorrect" style="color:var(--red)">0</strong></span>
     <span class="score-divider">|</span>
-    <span style="font-size:24px">🎯</span><strong id="score-accuracy" style="color:var(--purple);font-size:20px">0%</strong>
+    <span style="font-size:24px">🎯</span><strong id="score-accuracy" style="color:var(--blue);font-size:20px">0%</strong>
     <span id="streak-display" class="hidden"><span style="font-size:24px">🔥</span><strong id="score-streak" style="color:var(--orange);font-size:20px"></strong></span>
   </div>
 
