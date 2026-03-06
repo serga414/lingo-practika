@@ -755,7 +755,7 @@ function startListening() {
   recognition.onresult = (e) => {
     let t = ""; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript;
     latestTranscript = t;
-    document.getElementById("live-transcript").textContent = '"' + t + '"';
+    document.getElementById("live-transcript").textContent = '"' + displayForm(t, practiceLang) + '"';
   };
   recognition.onerror = (e) => {
     if (e.error==="no-speech") return;
@@ -764,18 +764,26 @@ function startListening() {
   recognition.start();
 }
 
+function displayForm(heard, lang) {
+  // If speech recognizer returned pure digits, show the word form instead
+  const d = parseInt(heard.replace(/[^0-9]/g,""), 10);
+  if (!isNaN(d) && String(d) === heard.trim()) return toWords(d, lang);
+  // If mixed e.g. "venti7", convert embedded digits to words
+  return heard.replace(/\d+/g, n => toWords(parseInt(n), lang));
+}
+
 function doneSpeaking() {
   stopRecognition();
   const heard = latestTranscript.trim();
   if (!heard) { showError(UI[interfaceLang].noSpeech); return; }
   heardText = heard;
-  document.getElementById("confirm-heard-text").textContent = '"' + heard + '"';
+  document.getElementById("confirm-heard-text").textContent = '"' + displayForm(heard, practiceLang) + '"';
   showMicStage("confirm");
 }
 
 function confirmHeard() {
   const correct = isMatch(heardText, currentNumber, practiceLang);
-  document.getElementById("result-heard-text").textContent = '"' + heardText + '"';
+  document.getElementById("result-heard-text").textContent = '"' + displayForm(heardText, practiceLang) + '"';
   document.getElementById("correct-answer-text").textContent = toWords(currentNumber, practiceLang);
   document.getElementById("result-correct").classList.toggle("hidden", !correct);
   document.getElementById("result-wrong").classList.toggle("hidden", correct);
