@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lingo Practika</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #7c3aed;
+    --purple-light: #a78bfa;
+    --green: #16a34a;
+    --red: #dc2626;
+    --orange: #ea580c;
+    --font: 'DM Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── LIGHT THEME ── */
+  body.light {
+    background: linear-gradient(150deg, #fef9f0 0%, #fdf0e8 50%, #f5f0ff 100%);
+    color: #1e1b2e;
+    --text: #1e1b2e;
+    --text-muted: #9ca3af;
+    --text-label: #374151;
+    --card-bg: #ffffff;
+    --card-border: #ede9fe;
+    --card-shadow: 0 8px 40px rgba(124,58,237,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    --input-bg: #f8f7ff;
+    --input-border: #ddd6fe;
+    --divider: #ede9fe;
+    --range-inactive-bg: #fff;
+    --range-inactive-color: #6b7280;
+    --range-border: #d4c8f0;
+    --feature-card-bg: #f5f0ff;
+    --feature-card-border: #ddd6fe;
+    --footer-color: #c4b5fd;
+    --toggle-bg: #fff;
+    --toggle-border: #ede9fe;
+    --answer-color: #6d28d9;
+  }
+
+  /* ── DARK THEME ── */
+  body.dark {
+    background: linear-gradient(150deg, #0f0c1a 0%, #1a1025 50%, #0d1020 100%);
+    color: #e9e4f8;
+    --text: #e9e4f8;
+    --text-muted: #7c6fa0;
+    --text-label: #c4b5fd;
+    --card-bg: #1e1830;
+    --card-border: #2d2450;
+    --card-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    --input-bg: #2a2040;
+    --input-border: #3d3060;
+    --divider: #2d2450;
+    --range-inactive-bg: #1e1830;
+    --range-inactive-color: #7c6fa0;
+    --range-border: #2d2450;
+    --feature-card-bg: #2a1f4a;
+    --feature-card-border: #3d2d70;
+    --footer-color: #4a3d70;
+    --toggle-bg: #2a2040;
+    --toggle-border: #3d3060;
+    --answer-color: #a78bfa;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; position: relative; }
+
+  /* ── CORNER BUTTONS ── */
+  .corner-btn {
+    position: absolute; top: 16px; z-index: 99;
+    background: var(--toggle-bg); border: 1px solid var(--toggle-border);
+    border-radius: 100px; padding: 7px 14px; cursor: pointer;
+    font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s; font-family: var(--font);
+  }
+  .corner-btn:hover { transform: scale(1.05); }
+  .btn-right { right: 16px; }
+  .btn-left { left: 16px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 24px; box-shadow: var(--card-shadow);
+    width: 100%; max-width: 460px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .card-pad { padding: 40px 40px 48px; }
+  .card-pad-practice { padding: clamp(32px, 6vw, 56px); }
+
+  /* ── TYPOGRAPHY ── */
+  .app-title { font-size: 38px; font-weight: 300; letter-spacing: -1px; color: var(--text); margin-bottom: 6px; }
+  .feature-title { font-size: clamp(26px,5vw,38px); font-weight: 300; color: var(--text); letter-spacing: -0.5px; margin: 72px 0 0; }
+  .section-label { font-size: 18px; color: var(--text-label); font-weight: 500; margin-bottom: 12px; }
+  .settings-label { font-size: 13px; color: var(--text-label); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .footer-text { color: var(--footer-color); font-size: 12px; margin-top: 20px; }
+  .muted { color: var(--text-muted); }
+
+  hr.divider { border: none; border-top: 1px solid var(--divider); margin: 0 0 28px; }
+
+  /* ── FLAGS ── */
+  .flag-btn { background: none; border: none; cursor: pointer; padding: 2px; opacity: 0.25; transition: all 0.2s; line-height: 0; }
+  .flag-btn.active { opacity: 1; }
+  .flag-btn svg { display: block; }
+
+  /* ── PRACTICE LANGUAGE ROWS ── */
+  .lang-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border-radius: 12px; cursor: pointer;
+    border: 2px solid var(--divider); background: var(--card-bg);
+    transition: all 0.2s; text-align: left; width: 100%; font-family: var(--font);
+    opacity: 0.6; margin-bottom: 10px;
+  }
+  .lang-row.active { border-color: var(--purple); background: var(--feature-card-bg); opacity: 1; }
+  .lang-row-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .lang-row.active .lang-row-name { color: var(--purple); }
+  .lang-row-sub { font-size: 13px; color: var(--text-muted); }
+  .lang-row-check { margin-left: auto; color: var(--purple); font-size: 18px; display: none; }
+  .lang-row.active .lang-row-check { display: block; }
+
+  /* ── FEATURE CARD ── */
+  .feature-card {
+    background: var(--feature-card-bg); border: 1px solid var(--feature-card-border);
+    border-radius: 16px; padding: 18px 20px; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .feature-card-title { font-size: 16px; font-weight: 700; color: var(--purple); margin-bottom: 3px; }
+  .feature-card-desc { font-size: 13px; color: var(--text-muted); }
+  .mvp-badge { margin-left: auto; background: var(--purple); color: #fff; font-size: 11px; border-radius: 100px; padding: 3px 10px; white-space: nowrap; }
+
+  /* ── BUTTONS ── */
+  .btn { border: none; border-radius: 100px; color: #fff; cursor: pointer; font-family: var(--font); font-weight: 600; letter-spacing: 0.3px; transition: opacity 0.2s; }
+  .btn:hover { opacity: 0.88; }
+  .btn-lg { padding: 14px 36px; font-size: 16px; }
+  .btn-sm { padding: 10px 24px; font-size: 14px; }
+  .btn-full { width: 100%; font-size: 18px; padding: 16px; }
+  .btn-purple { background: var(--purple); }
+  .btn-green { background: var(--green); }
+  .btn-red { background: var(--red); }
+  .btn-gray { background: #9ca3af; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── MIC BUTTON ── */
+  .mic-btn { width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--purple); transition: all 0.2s; flex-shrink: 0; }
+
+  /* ── RANGE PILLS ── */
+  .range-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 480px; margin-bottom: 24px; }
+  .range-pill {
+    padding: 8px 18px; border-radius: 100px; border: 1px solid var(--range-border);
+    background: var(--range-inactive-bg); color: var(--range-inactive-color);
+    cursor: pointer; font-size: 17px; font-family: var(--font); transition: all 0.2s;
+  }
+  .range-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+
+  /* ── SETTINGS BAR ── */
+  .settings-bar { display: flex; align-items: flex-start; justify-content: center; gap: 32px; margin-bottom: 20px; }
+  .settings-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .settings-flags { display: flex; gap: 8px; align-items: center; }
+  .settings-divider { width: 1px; height: 48px; background: var(--divider); margin-top: 4px; }
+
+  /* ── NUMBER DISPLAY ── */
+  .number-display { font-size: clamp(42px,10vw,72px); font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 8px; letter-spacing: -2px; }
+  .how-say { font-size: 26px; color: var(--text-muted); margin-bottom: 28px; }
+
+  /* ── MIC ANIMATION ── */
+  .mic-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(124,58,237,0.3); animation: ripple 1.2s infinite; }
+  .mic-core { width: 56px; height: 56px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
+
+  /* ── INPUT BOXES ── */
+  .heard-box { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+  .heard-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .heard-text { font-size: 22px; color: var(--text); font-style: italic; }
+  .answer-box { background: var(--feature-card-bg); border: 1px solid var(--feature-card-border); border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 18px; color: var(--answer-color); font-style: italic; }
+
+  /* ── SCORE BAR ── */
+  .score-bar { display: flex; gap: 28px; margin-top: 28px; background: var(--card-bg); border: 1px solid var(--divider); border-radius: 100px; padding: 16px 36px; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); align-items: center; }
+  .score-divider { color: var(--divider); }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+  .stage { display: none; }
+  .stage.active { display: block; }
+
+  /* ── PRACTICE PROMPT ── */
+  .practice-prompt-wrap { text-align: center; }
+  .practice-prompt-flag { font-size: 56px; margin-bottom: 16px; }
+</style>
+</head>
+<body class="light">
+
+<!-- ══════════════════════════════════════════════
+     WELCOME SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-welcome" class="screen active">
+  <button class="corner-btn btn-right" onclick="toggleDark()" id="dark-toggle-welcome">🌙</button>
+
+  <div class="card card-pad" style="text-align:center">
+
+    <!-- Brand -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:44px;margin-bottom:14px">🌐</div>
+      <h1 class="app-title" id="welcome-app-name">Lingo Practika</h1>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Interface language -->
+    <div style="margin-bottom:28px;text-align:left">
+      <div class="section-label" id="label-interface">Interface language</div>
+      <div style="display:flex;gap:12px;align-items:center" id="interface-flags">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+    <!-- Practice language -->
+    <div style="margin-bottom:32px;text-align:left">
+      <div class="section-label" id="label-practice">Practice language</div>
+      <div id="practice-lang-rows"><!-- injected by JS --></div>
+    </div>
+
+    <!-- Feature card -->
+    <div class="feature-card">
+      <div style="font-size:32px">🔢</div>
+      <div>
+        <div class="feature-card-title" id="welcome-feature-title">Lingo Numero</div>
+        <div class="feature-card-desc" id="welcome-feature-desc">Practise numbers</div>
+      </div>
+      <div class="mvp-badge">MVP</div>
+    </div>
+
+    <button class="btn btn-purple btn-full" onclick="startPractice()" id="start-btn">Start practising →</button>
+  </div>
+
+  <p class="footer-text" id="welcome-footer">Lingo Practika · Lingo Numero</p>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PRACTICE SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-practice" class="screen">
+  <button class="corner-btn btn-left" onclick="goHome()">🏠</button>
+  <button class="corner-btn btn-right" onclick="toggleDark()" id="dark-toggle-practice">🌙</button>
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:24px;width:100%;max-width:480px">
+
+    <!-- Settings bar -->
+    <div class="settings-bar">
+      <div class="settings-group">
+        <div class="settings-label" id="settings-label-interface">Interface language</div>
+        <div class="settings-flags" id="settings-interface-flags"><!-- injected --></div>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-group">
+        <div class="settings-label" id="settings-label-practice">Practice language</div>
+        <div class="settings-flags" id="settings-practice-flags"><!-- injected --></div>
+      </div>
+    </div>
+
+    <h2 class="feature-title" id="practice-feature-title">Lingo Numero</h2>
+  </div>
+
+  <!-- Range pills -->
+  <div class="range-row" id="range-row">
+    <button class="range-pill active" onclick="setRange(0)">1–100</button>
+    <button class="range-pill" onclick="setRange(1)">1–1,000</button>
+    <button class="range-pill" onclick="setRange(2)">100s–1,000s</button>
+    <button class="range-pill" onclick="setRange(3)">1K–1 Million</button>
+  </div>
+
+  <!-- Main card -->
+  <div class="card card-pad-practice" style="max-width:440px;text-align:center">
+
+    <!-- Empty state -->
+    <div id="stage-empty">
+      <div class="practice-prompt-flag" id="prompt-flag"></div>
+      <p class="muted" id="prompt-text" style="margin-bottom:32px;font-size:16px"></p>
+      <button class="btn btn-purple btn-lg" onclick="generate()" id="generate-btn">Generate number</button>
+    </div>
+
+    <!-- Active practice -->
+    <div id="stage-active" class="hidden">
+      <div class="number-display" id="number-display"></div>
+      <div class="how-say" id="how-say-text"></div>
+
+      <!-- idle -->
+      <div id="mic-stage-idle" class="stage active">
+        <div class="btn-row">
+          <button class="btn btn-purple btn-lg" onclick="revealAnswer()" id="reveal-btn">Reveal answer</button>
+          <button class="mic-btn" onclick="startListening()" title="Speak your answer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="22" x2="16" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- listening -->
+      <div id="mic-stage-listening" class="stage">
+        <div class="mic-wrap">
+          <div class="mic-ripple"></div>
+          <div class="mic-core">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="22" x2="16" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <p style="color:var(--purple);font-size:15px;font-style:italic;margin-bottom:8px" id="listening-prompt-text">Listening… speak your answer</p>
+        <p class="muted" id="live-transcript" style="font-size:14px;font-style:italic;margin-bottom:16px;min-height:20px"></p>
+        <div class="btn-row">
+          <button class="btn btn-green btn-sm" onclick="doneSpeaking()" id="done-speaking-btn">✓ Done speaking</button>
+          <button class="btn btn-gray btn-sm" onclick="resetMic()" id="cancel-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- confirm -->
+      <div id="mic-stage-confirm" class="stage">
+        <div class="heard-box">
+          <div class="heard-label" id="i-heard-label">I heard you say</div>
+          <div class="heard-text" id="confirm-heard-text"></div>
+        </div>
+        <p class="muted" id="did-i-hear-text" style="font-size:15px;margin-bottom:14px">Did I hear you correctly?</p>
+        <div class="btn-row">
+          <button class="btn btn-green btn-sm" onclick="confirmHeard()" id="yes-right-btn">✓ Yes, that's right</button>
+          <button class="btn btn-purple btn-sm" onclick="retryListening()" id="try-again-confirm-btn">🎤 Try again</button>
+        </div>
+      </div>
+
+      <!-- result -->
+      <div id="mic-stage-result" class="stage">
+        <div class="heard-box" style="margin-bottom:12px">
+          <div class="heard-label" id="you-said-label">You said</div>
+          <div class="heard-text" id="result-heard-text"></div>
+        </div>
+        <div class="answer-box">
+          <span id="correct-answer-label">✓ Correct answer:</span> <strong id="correct-answer-text"></strong>
+        </div>
+        <div id="result-correct" class="hidden">
+          <p style="color:var(--green);font-weight:600;font-size:26px;margin-bottom:16px" id="correct-pronunciation-text">🎉 Correct pronunciation!</p>
+          <div class="btn-row" id="result-correct-btns">
+            <button class="btn btn-green btn-sm" onclick="markAnswer(true)" id="mark-correct-btn">✓ Mark correct</button>
+            <button class="btn btn-red btn-sm" onclick="markAnswer(false)" id="mark-wrong-btn1">✗ Mark wrong</button>
+          </div>
+        </div>
+        <div id="result-wrong" class="hidden">
+          <p style="color:var(--orange);font-weight:600;font-size:18px;margin-bottom:16px" id="not-quite-text">Not quite — keep practising!</p>
+          <div class="btn-row" id="result-wrong-btns">
+            <button class="btn btn-purple btn-sm" onclick="retryListening()" id="try-again-result-btn">🎤 Try again</button>
+            <button class="btn btn-red btn-sm" onclick="markAnswer(false)" id="mark-wrong-btn2">✗ Mark wrong</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- error -->
+      <div id="mic-stage-error" class="stage">
+        <p style="color:var(--red);font-size:14px;margin-bottom:12px" id="error-text"></p>
+        <div class="btn-row">
+          <button class="btn btn-purple btn-sm" onclick="startListening()" id="try-again-error-btn">🎤 Try again</button>
+          <button class="btn btn-gray btn-sm" onclick="resetMic()" id="dismiss-btn">Dismiss</button>
+        </div>
+      </div>
+
+      <!-- reveal -->
+      <div id="mic-stage-reveal" class="stage" style="display:none">
+        <div class="answer-box" style="font-size:clamp(20px,4vw,28px);margin-bottom:20px" id="revealed-answer"></div>
+        <p class="muted" id="did-you-get-it-text" style="font-size:14px;margin-bottom:12px">Did you get it right?</p>
+        <div class="btn-row">
+          <button class="btn btn-green btn-sm" onclick="markAnswer(true)" id="yes-btn">✓ Yes!</button>
+          <button class="btn btn-red btn-sm" onclick="markAnswer(false)" id="not-yet-btn">✗ Not yet</button>
+        </div>
+      </div>
+
+      <!-- answered -->
+      <div id="stage-answered" class="hidden" style="margin-top:16px">
+        <button class="btn btn-purple btn-lg" onclick="generate()" id="next-btn">Next number →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score bar -->
+  <div class="score-bar hidden" id="score-bar">
+    <span>✓ <strong id="score-correct" style="color:var(--green)">0</strong></span>
+    <span class="score-divider">|</span>
+    <span>✗ <strong id="score-incorrect" style="color:var(--red)">0</strong></span>
+    <span class="score-divider">|</span>
+    <span style="font-size:24px">🎯</span><strong id="score-accuracy" style="color:var(--purple);font-size:20px">0%</strong>
+    <span id="streak-display" class="hidden"><span style="font-size:24px">🔥</span><strong id="score-streak" style="color:var(--orange);font-size:20px"></strong></span>
+  </div>
+
+  <p class="footer-text" id="practice-footer">Lingo Practika · Lingo Numero</p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// NUMBER LOGIC
+// ═══════════════════════════════════════════════════════
+const esOnes=["","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve"];
+const esTens=["","","veinte","treinta","cuarenta","cincuenta","sesenta","setenta","ochenta","noventa"];
+const esHundreds=["","cien","doscientos","trescientos","cuatrocientos","quinientos","seiscientos","setecientos","ochocientos","novecientos"];
+function toSpanishU1000(n){if(n===0)return"";if(n===100)return"cien";let r="";if(n>=100){r+=esHundreds[Math.floor(n/100)];n=n%100;if(n>0)r+=" ";}if(n>=20){const t=Math.floor(n/10),o=n%10;r+=o>0?esTens[t]+" y "+esOnes[o]:esTens[t];}else if(n>0)r+=esOnes[n];return r.trim();}
+function toSpanish(n){if(n===0)return"cero";if(n===1000000)return"un millón";let r="";if(n>=1000000){const m=Math.floor(n/1000000);r+=m===1?"un millón":toSpanishU1000(m)+" millones";n=n%1000000;if(n>0)r+=" ";}if(n>=1000){const t=Math.floor(n/1000);r+=t===1?"mil":toSpanishU1000(t)+" mil";n=n%1000;if(n>0)r+=" ";}if(n>0)r+=toSpanishU1000(n);return r.trim();}
+
+const enOnes=["","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+const enTens=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+function toEnglishU1000(n){if(n===0)return"";let r="";if(n>=100){r+=enOnes[Math.floor(n/100)]+" hundred";n=n%100;if(n>0)r+=" ";}if(n>=20){const t=Math.floor(n/10),o=n%10;r+=o>0?enTens[t]+"-"+enOnes[o]:enTens[t];}else if(n>0)r+=enOnes[n];return r.trim();}
+function toEnglish(n){if(n===0)return"zero";if(n===1000000)return"one million";let r="";if(n>=1000000){const m=Math.floor(n/1000000);r+=toEnglishU1000(m)+" million";n=n%1000000;if(n>0)r+=" ";}if(n>=1000){const t=Math.floor(n/1000);r+=toEnglishU1000(t)+" thousand";n=n%1000;if(n>0)r+=" ";}if(n>0)r+=toEnglishU1000(n);return r.trim();}
+
+const ruOnes=["","один","два","три","четыре","пять","шесть","семь","восемь","девять","десять","одиннадцать","двенадцать","тринадцать","четырнадцать","пятнадцать","шестнадцать","семнадцать","восемнадцать","девятнадцать"];
+const ruTens=["","","двадцать","тридцать","сорок","пятьдесят","шестьдесят","семьдесят","восемьдесят","девяносто"];
+const ruHundreds=["","сто","двести","триста","четыреста","пятьсот","шестьсот","семьсот","восемьсот","девятьсот"];
+function toRussianU1000(n,fem=false){if(n===0)return"";let r="";if(n>=100){r+=ruHundreds[Math.floor(n/100)];n=n%100;if(n>0)r+=" ";}if(n>=20){const t=Math.floor(n/10),o=n%10;r+=ruTens[t];if(o>0)r+=" "+(fem&&o===1?"одна":fem&&o===2?"две":ruOnes[o]);}else if(n>0)r+=(fem&&n===1?"одна":fem&&n===2?"две":ruOnes[n]);return r.trim();}
+function toRussian(n){if(n===0)return"ноль";if(n===1000000)return"один миллион";let r="";if(n>=1000000){const m=Math.floor(n/1000000);const mw=toRussianU1000(m);const suf=m%10===1&&m%100!==11?"миллион":m%10>=2&&m%10<=4&&!(m%100>=12&&m%100<=14)?"миллиона":"миллионов";r+=mw+" "+suf;n=n%1000000;if(n>0)r+=" ";}if(n>=1000){const t=Math.floor(n/1000);const tw=toRussianU1000(t,true);const suf=t%10===1&&t%100!==11?"тысяча":t%10>=2&&t%10<=4&&!(t%100>=12&&t%100<=14)?"тысячи":"тысяч";r+=(tw?tw+" ":"")+suf;n=n%1000;if(n>0)r+=" ";}if(n>0)r+=toRussianU1000(n);return r.trim();}
+
+function toWords(n,lang){if(lang==="es")return toSpanish(n);if(lang==="en")return toEnglish(n);if(lang==="ru")return toRussian(n);return String(n);}
+
+function normalise(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g,"").trim();}
+function isMatch(heard,number,lang){
+  if(normalise(heard)===normalise(toWords(number,lang)))return true;
+  const d=parseInt(heard.replace(/[^0-9]/g,""),10);
+  if(!isNaN(d)&&d===number)return true;
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════
+// FLAGS (inline SVG)
+// ═══════════════════════════════════════════════════════
+function flagSVG(code, size){
+  const w=size==="md"?28:20, h=size==="md"?19:13;
+  if(code==="en") return `<svg width="${w}" height="${h}" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="24" fill="#B22234"/><rect y="1.85" width="36" height="1.85" fill="white"/><rect y="5.54" width="36" height="1.85" fill="white"/><rect y="9.23" width="36" height="1.85" fill="white"/><rect y="12.92" width="36" height="1.85" fill="white"/><rect y="16.62" width="36" height="1.85" fill="white"/><rect y="20.31" width="36" height="1.85" fill="white"/><rect width="15" height="12.92" fill="#3C3B6E"/><circle cx="1.4" cy="1.3" r="0.8" fill="white"/><circle cx="3.9" cy="1.3" r="0.8" fill="white"/><circle cx="6.4" cy="1.3" r="0.8" fill="white"/><circle cx="8.9" cy="1.3" r="0.8" fill="white"/><circle cx="11.4" cy="1.3" r="0.8" fill="white"/><circle cx="13.9" cy="1.3" r="0.8" fill="white"/><circle cx="2.65" cy="3.6" r="0.8" fill="white"/><circle cx="5.15" cy="3.6" r="0.8" fill="white"/><circle cx="7.65" cy="3.6" r="0.8" fill="white"/><circle cx="10.15" cy="3.6" r="0.8" fill="white"/><circle cx="12.65" cy="3.6" r="0.8" fill="white"/><circle cx="1.4" cy="5.9" r="0.8" fill="white"/><circle cx="3.9" cy="5.9" r="0.8" fill="white"/><circle cx="6.4" cy="5.9" r="0.8" fill="white"/><circle cx="8.9" cy="5.9" r="0.8" fill="white"/><circle cx="11.4" cy="5.9" r="0.8" fill="white"/><circle cx="13.9" cy="5.9" r="0.8" fill="white"/><circle cx="2.65" cy="8.2" r="0.8" fill="white"/><circle cx="5.15" cy="8.2" r="0.8" fill="white"/><circle cx="7.65" cy="8.2" r="0.8" fill="white"/><circle cx="10.15" cy="8.2" r="0.8" fill="white"/><circle cx="12.65" cy="8.2" r="0.8" fill="white"/><circle cx="1.4" cy="10.5" r="0.8" fill="white"/><circle cx="3.9" cy="10.5" r="0.8" fill="white"/><circle cx="6.4" cy="10.5" r="0.8" fill="white"/><circle cx="8.9" cy="10.5" r="0.8" fill="white"/><circle cx="11.4" cy="10.5" r="0.8" fill="white"/><circle cx="13.9" cy="10.5" r="0.8" fill="white"/><circle cx="2.65" cy="12.8" r="0.8" fill="white"/><circle cx="5.15" cy="12.8" r="0.8" fill="white"/><circle cx="7.65" cy="12.8" r="0.8" fill="white"/><circle cx="10.15" cy="12.8" r="0.8" fill="white"/><circle cx="12.65" cy="12.8" r="0.8" fill="white"/></svg>`;
+  if(code==="ru") return `<svg width="${w}" height="${h}" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="8" fill="white"/><rect y="8" width="36" height="8" fill="#0039A6"/><rect y="16" width="36" height="8" fill="#D52B1E"/></svg>`;
+  if(code==="es") return `<svg width="${w}" height="${h}" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="24" fill="#AA151B"/><rect y="6" width="36" height="12" fill="#F1BF00"/></svg>`;
+  return "";
+}
+
+// ═══════════════════════════════════════════════════════
+// UI STRINGS
+// ═══════════════════════════════════════════════════════
+const UI = {
+  en: {
+    appName:"Lingo Practika", chooseInterface:"Interface language", choosePractice:"Practice language",
+    startBtn:"Start practising →", featureTitle:"Lingo Numero", featureDesc:"Practise numbers",
+    practiceLabel:{es:"Spanish numbers",en:"English numbers",ru:"Russian numbers"},
+    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
+    prompt:{es:"Press generate to practise Spanish numbers",en:"Press generate to practise English numbers",ru:"Press generate to practise Russian numbers"},
+    generate:"Generate number", revealAnswer:"Reveal answer", listeningPrompt:"Listening… speak your answer",
+    doneSpeaking:"✓ Done speaking", cancel:"Cancel", iHeard:"I heard you say",
+    didIHearCorrectly:"Did I hear you correctly?", yesThatsRight:"✓ Yes, that's right", tryAgain:"Try again",
+    youSaid:"You said", correctAnswer:"✓ Correct answer:", correctPronunciation:"🎉 Correct pronunciation!",
+    notQuite:"Not quite — keep practising!", markCorrect:"✓ Mark correct", markWrong:"✗ Mark wrong",
+    didYouGetItRight:"Did you get it right?", yes:"✓ Yes!", notYet:"✗ Not yet", next:"Next number →",
+    noSpeech:"Nothing was heard. Please try again.", noSupport:"Speech recognition not supported. Use Chrome.",
+    micError:"Microphone error: ", dismiss:"Dismiss", footer:"Lingo Practika · Lingo Numero",
+  },
+  ru: {
+    appName:"Lingo Practika", chooseInterface:"Язык интерфейса", choosePractice:"Язык практики",
+    startBtn:"Начать →", featureTitle:"Lingo Numero", featureDesc:"Практикуйте числа",
+    practiceLabel:{es:"Испанские числа",en:"Английские числа",ru:"Русские числа"},
+    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
+    prompt:{es:"Нажмите «Сгенерировать» для практики испанских чисел",en:"Нажмите «Сгенерировать» для практики английских чисел",ru:"Нажмите «Сгенерировать» для практики русских чисел"},
+    generate:"Сгенерировать число", revealAnswer:"Показать ответ", listeningPrompt:"Слушаю… произнесите ответ",
+    doneSpeaking:"✓ Готово", cancel:"Отмена", iHeard:"Я услышал",
+    didIHearCorrectly:"Я правильно вас понял?", yesThatsRight:"✓ Да, верно", tryAgain:"Попробовать снова",
+    youSaid:"Вы сказали", correctAnswer:"✓ Правильный ответ:", correctPronunciation:"🎉 Правильное произношение!",
+    notQuite:"Не совсем — продолжайте практиковаться!", markCorrect:"✓ Засчитать", markWrong:"✗ Не засчитывать",
+    didYouGetItRight:"Вы ответили правильно?", yes:"✓ Да!", notYet:"✗ Нет", next:"Следующее число →",
+    noSpeech:"Ничего не услышано. Попробуйте снова.", noSupport:"Распознавание речи не поддерживается. Используйте Chrome.",
+    micError:"Ошибка микрофона: ", dismiss:"Закрыть", footer:"Lingo Practika · Lingo Numero",
+  },
+  es: {
+    appName:"Lingo Practika", chooseInterface:"Idioma de la interfaz", choosePractice:"Idioma de práctica",
+    startBtn:"Comenzar →", featureTitle:"Lingo Numero", featureDesc:"Practica números",
+    practiceLabel:{es:"Números en español",en:"Números en inglés",ru:"Números en ruso"},
+    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
+    prompt:{es:"Pulsa generar para practicar números en español",en:"Pulsa generar para practicar números en inglés",ru:"Pulsa generar para practicar números en ruso"},
+    generate:"Generar número", revealAnswer:"Mostrar respuesta", listeningPrompt:"Escuchando… di tu respuesta",
+    doneSpeaking:"✓ Listo", cancel:"Cancelar", iHeard:"Escuché",
+    didIHearCorrectly:"¿Te entendí bien?", yesThatsRight:"✓ Sí, correcto", tryAgain:"Intentar de nuevo",
+    youSaid:"Dijiste", correctAnswer:"✓ Respuesta correcta:", correctPronunciation:"🎉 ¡Pronunciación correcta!",
+    notQuite:"No del todo — ¡sigue practicando!", markCorrect:"✓ Marcar correcto", markWrong:"✗ Marcar incorrecto",
+    didYouGetItRight:"¿Lo dijiste bien?", yes:"✓ ¡Sí!", notYet:"✗ Todavía no", next:"Siguiente número →",
+    noSpeech:"No se detectó voz. Inténtalo de nuevo.", noSupport:"Reconocimiento de voz no compatible. Usa Chrome.",
+    micError:"Error de micrófono: ", dismiss:"Cerrar", footer:"Lingo Practika · Lingo Numero",
+  }
+};
+
+const INTERFACE_LANGS = [{code:"en"},{code:"ru"},{code:"es"}];
+const PRACTICE_LANGS = [
+  {code:"es",label:"Spanish"},{code:"en",label:"English"},{code:"ru",label:"Russian"}
+];
+const SPEECH_LANG = {es:"es-ES",en:"en-US",ru:"ru-RU"};
+const RANGES = [
+  {min:1,max:100},{min:1,max:1000},{min:100,max:1000,step:100},{min:1000,max:1000000}
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let interfaceLang = "en";
+let practiceLang = "es";
+let darkMode = false;
+let rangeIdx = 0;
+let currentNumber = null;
+let micStage = "idle"; // idle | listening | confirm | result | error | reveal
+let heardText = "";
+let scoreCorrect = 0, scoreIncorrect = 0, streak = 0;
+let answered = false;
+let recognition = null;
+let latestTranscript = "";
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  renderInterfaceFlags();
+  renderPracticeLangRows();
+  renderSettingsFlags();
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER FLAGS
+// ═══════════════════════════════════════════════════════
+function renderInterfaceFlags() {
+  const c = document.getElementById("interface-flags");
+  c.innerHTML = INTERFACE_LANGS.map(l => `
+    <button class="flag-btn ${interfaceLang===l.code?'active':''}" onclick="setInterfaceLang('${l.code}')" title="${l.code}">
+      ${flagSVG(l.code, interfaceLang===l.code?"md":"sm")}
+    </button>`).join("");
+}
+
+function renderSettingsFlags() {
+  const ci = document.getElementById("settings-interface-flags");
+  ci.innerHTML = INTERFACE_LANGS.map(l => `
+    <button class="flag-btn ${interfaceLang===l.code?'active':''}" onclick="setInterfaceLang('${l.code}')" title="${l.code}">
+      ${flagSVG(l.code, interfaceLang===l.code?"md":"sm")}
+    </button>`).join("");
+
+  const cp = document.getElementById("settings-practice-flags");
+  cp.innerHTML = PRACTICE_LANGS.map(l => `
+    <button class="flag-btn ${practiceLang===l.code?'active':''}" onclick="setPracticeLang('${l.code}')" title="${l.code}">
+      ${flagSVG(l.code, practiceLang===l.code?"md":"sm")}
+    </button>`).join("");
+}
+
+function renderPracticeLangRows() {
+  const t = UI[interfaceLang];
+  const c = document.getElementById("practice-lang-rows");
+  c.innerHTML = PRACTICE_LANGS.map(l => `
+    <button class="lang-row ${practiceLang===l.code?'active':''}" onclick="setPracticeLang('${l.code}')">
+      ${flagSVG(l.code, practiceLang===l.code?"md":"sm")}
+      <div>
+        <div class="lang-row-name">${l.label}</div>
+        <div class="lang-row-sub">${t.practiceLabel[l.code]}</div>
+      </div>
+      <div class="lang-row-check">✓</div>
+    </button>`).join("");
+}
+
+// ═══════════════════════════════════════════════════════
+// UPDATE ALL UI TEXT
+// ═══════════════════════════════════════════════════════
+function updateUI() {
+  const t = UI[interfaceLang];
+  document.getElementById("welcome-app-name").textContent = t.appName;
+  document.getElementById("label-interface").textContent = t.chooseInterface;
+  document.getElementById("label-practice").textContent = t.choosePractice;
+  document.getElementById("start-btn").textContent = t.startBtn;
+  document.getElementById("welcome-feature-title").textContent = t.featureTitle;
+  document.getElementById("welcome-feature-desc").textContent = t.featureDesc;
+  document.getElementById("welcome-footer").textContent = t.footer;
+  document.getElementById("settings-label-interface").textContent = t.chooseInterface;
+  document.getElementById("settings-label-practice").textContent = t.choosePractice;
+  document.getElementById("practice-feature-title").textContent = t.featureTitle;
+  document.getElementById("generate-btn").textContent = t.generate;
+  document.getElementById("reveal-btn").textContent = t.revealAnswer;
+  document.getElementById("listening-prompt-text").textContent = t.listeningPrompt;
+  document.getElementById("done-speaking-btn").textContent = t.doneSpeaking;
+  document.getElementById("cancel-btn").textContent = t.cancel;
+  document.getElementById("i-heard-label").textContent = t.iHeard;
+  document.getElementById("did-i-hear-text").textContent = t.didIHearCorrectly;
+  document.getElementById("yes-right-btn").textContent = t.yesThatsRight;
+  document.getElementById("try-again-confirm-btn").textContent = "🎤 " + t.tryAgain;
+  document.getElementById("you-said-label").textContent = t.youSaid;
+  document.getElementById("correct-answer-label").textContent = t.correctAnswer;
+  document.getElementById("correct-pronunciation-text").textContent = t.correctPronunciation;
+  document.getElementById("not-quite-text").textContent = t.notQuite;
+  document.getElementById("mark-correct-btn").textContent = t.markCorrect;
+  document.getElementById("mark-wrong-btn1").textContent = t.markWrong;
+  document.getElementById("try-again-result-btn").textContent = "🎤 " + t.tryAgain;
+  document.getElementById("mark-wrong-btn2").textContent = t.markWrong;
+  document.getElementById("dismiss-btn").textContent = t.dismiss;
+  document.getElementById("did-you-get-it-text").textContent = t.didYouGetItRight;
+  document.getElementById("yes-btn").textContent = t.yes;
+  document.getElementById("not-yet-btn").textContent = t.notYet;
+  document.getElementById("next-btn").textContent = t.next;
+  document.getElementById("practice-footer").textContent = t.footer;
+  // update prompt
+  if (!currentNumber) {
+    document.getElementById("prompt-text").textContent = t.prompt[practiceLang];
+    document.getElementById("prompt-flag").innerHTML = flagSVG(practiceLang, "md");
+  }
+  document.getElementById("how-say-text").textContent = t.howDoYouSay[practiceLang];
+  renderPracticeLangRows();
+  renderInterfaceFlags();
+  renderSettingsFlags();
+}
+
+// ═══════════════════════════════════════════════════════
+// LANGUAGE SETTERS
+// ═══════════════════════════════════════════════════════
+function setInterfaceLang(code) {
+  interfaceLang = code;
+  updateUI();
+}
+
+function setPracticeLang(code) {
+  practiceLang = code;
+  currentNumber = null;
+  answered = false;
+  resetMic();
+  showEmptyState();
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════
+// DARK MODE
+// ═══════════════════════════════════════════════════════
+function toggleDark() {
+  darkMode = !darkMode;
+  document.body.className = darkMode ? "dark" : "light";
+  document.getElementById("dark-toggle-welcome").textContent = darkMode ? "☀️" : "🌙";
+  document.getElementById("dark-toggle-practice").textContent = darkMode ? "☀️" : "🌙";
+}
+
+// ═══════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════
+function startPractice() {
+  document.getElementById("screen-welcome").classList.remove("active");
+  document.getElementById("screen-practice").classList.add("active");
+  showEmptyState();
+  updateUI();
+}
+
+function goHome() {
+  stopRecognition();
+  document.getElementById("screen-practice").classList.remove("active");
+  document.getElementById("screen-welcome").classList.add("active");
+}
+
+// ═══════════════════════════════════════════════════════
+// RANGE
+// ═══════════════════════════════════════════════════════
+function setRange(idx) {
+  rangeIdx = idx;
+  document.querySelectorAll(".range-pill").forEach((p,i) => p.classList.toggle("active", i===idx));
+  currentNumber = null; answered = false; resetMic(); showEmptyState();
+}
+
+// ═══════════════════════════════════════════════════════
+// GENERATE
+// ═══════════════════════════════════════════════════════
+function restoreButtons() {
+  document.getElementById("result-correct-btns").classList.remove("hidden");
+  document.getElementById("result-wrong-btns").classList.remove("hidden");
+  document.querySelectorAll("#mic-stage-reveal .btn-row").forEach(r=>r.classList.remove("hidden"));
+  document.getElementById("stage-answered").classList.add("hidden");
+}
+
+function generate() {
+  const r = RANGES[rangeIdx];
+  let n;
+  if (r.step) { const steps=Math.floor((r.max-r.min)/r.step)+1; n=r.min+Math.floor(Math.random()*steps)*r.step; }
+  else n = Math.floor(Math.random()*(r.max-r.min+1))+r.min;
+  currentNumber = n;
+  answered = false;
+  restoreButtons();
+  resetMic();
+
+  document.getElementById("stage-empty").classList.add("hidden");
+  document.getElementById("stage-active").classList.remove("hidden");
+  document.getElementById("stage-answered").classList.add("hidden");
+  document.getElementById("number-display").textContent = n.toLocaleString("en-US");
+  document.getElementById("how-say-text").textContent = UI[interfaceLang].howDoYouSay[practiceLang];
+  showMicStage("idle");
+}
+
+function showEmptyState() {
+  const t = UI[interfaceLang];
+  document.getElementById("stage-empty").classList.remove("hidden");
+  document.getElementById("stage-active").classList.add("hidden");
+  document.getElementById("stage-answered").classList.add("hidden");
+  document.getElementById("prompt-text").textContent = t.prompt[practiceLang];
+  document.getElementById("prompt-flag").innerHTML = flagSVG(practiceLang, "md");
+}
+
+// ═══════════════════════════════════════════════════════
+// MIC STAGES
+// ═══════════════════════════════════════════════════════
+function showMicStage(stage) {
+  micStage = stage;
+  ["idle","listening","confirm","result","error","reveal"].forEach(s => {
+    const el = document.getElementById("mic-stage-"+s);
+    if (el) { el.classList.remove("active"); el.style.display = "none"; }
+  });
+  const target = document.getElementById("mic-stage-"+stage);
+  if (target) { target.classList.add("active"); target.style.display = "block"; }
+}
+
+function revealAnswer() {
+  document.getElementById("revealed-answer").textContent = toWords(currentNumber, practiceLang);
+  showMicStage("reveal");
+}
+
+function resetMic() {
+  stopRecognition();
+  heardText = "";
+  latestTranscript = "";
+  showMicStage("idle");
+}
+
+function stopRecognition() {
+  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+}
+
+function startListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showError(UI[interfaceLang].noSupport); return; }
+  stopRecognition();
+  recognition = new SR();
+  recognition.lang = SPEECH_LANG[practiceLang];
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  recognition.maxAlternatives = 3;
+  latestTranscript = "";
+  document.getElementById("live-transcript").textContent = "";
+  showMicStage("listening");
+  recognition.onresult = (e) => {
+    let t = ""; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript;
+    latestTranscript = t;
+    document.getElementById("live-transcript").textContent = '"' + t + '"';
+  };
+  recognition.onerror = (e) => {
+    if (e.error==="no-speech") return;
+    showError(UI[interfaceLang].micError + e.error);
+  };
+  recognition.start();
+}
+
+function doneSpeaking() {
+  stopRecognition();
+  const heard = latestTranscript.trim();
+  if (!heard) { showError(UI[interfaceLang].noSpeech); return; }
+  heardText = heard;
+  document.getElementById("confirm-heard-text").textContent = '"' + heard + '"';
+  showMicStage("confirm");
+}
+
+function confirmHeard() {
+  const correct = isMatch(heardText, currentNumber, practiceLang);
+  document.getElementById("result-heard-text").textContent = '"' + heardText + '"';
+  document.getElementById("correct-answer-text").textContent = toWords(currentNumber, practiceLang);
+  document.getElementById("result-correct").classList.toggle("hidden", !correct);
+  document.getElementById("result-wrong").classList.toggle("hidden", correct);
+  showMicStage("result");
+}
+
+function retryListening() { heardText = ""; startListening(); }
+
+function showError(msg) {
+  document.getElementById("error-text").textContent = msg;
+  showMicStage("error");
+}
+
+// ═══════════════════════════════════════════════════════
+// SCORING
+// ═══════════════════════════════════════════════════════
+function markAnswer(correct) {
+  if (answered) return;
+  answered = true;
+  if (correct) { scoreCorrect++; streak++; }
+  else { scoreIncorrect++; streak = 0; }
+  updateScore();
+  // hide action buttons
+  document.getElementById("result-correct-btns").classList.add("hidden");
+  document.getElementById("result-wrong-btns").classList.add("hidden");
+  document.querySelectorAll("#mic-stage-reveal .btn-row").forEach(r=>r.classList.add("hidden"));
+  document.getElementById("stage-answered").classList.remove("hidden");
+}
+
+function updateScore() {
+  const total = scoreCorrect + scoreIncorrect;
+  if (total === 0) { document.getElementById("score-bar").classList.add("hidden"); return; }
+  document.getElementById("score-bar").classList.remove("hidden");
+  document.getElementById("score-correct").textContent = scoreCorrect;
+  document.getElementById("score-incorrect").textContent = scoreIncorrect;
+  document.getElementById("score-accuracy").textContent = Math.round(scoreCorrect/total*100)+"%";
+  const sd = document.getElementById("streak-display");
+  if (streak >= 3) { sd.classList.remove("hidden"); document.getElementById("score-streak").textContent = streak; }
+  else sd.classList.add("hidden");
+}
+
+// ── Boot ──
+init();
+</script>
+</body>
+</html>
