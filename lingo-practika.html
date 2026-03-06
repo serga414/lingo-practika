@@ -9,7 +9,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --purple: #7c3aed;
+    --purple: #6837B7;
     --purple-light: #a78bfa;
     --green: #16a34a;
     --red: #dc2626;
@@ -32,7 +32,7 @@
     --text-label: #374151;
     --card-bg: #ffffff;
     --card-border: #ede9fe;
-    --card-shadow: 0 8px 40px rgba(124,58,237,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    --card-shadow: 0 8px 40px rgba(104,55,183,0.1), 0 2px 8px rgba(0,0,0,0.06);
     --input-bg: #f8f7ff;
     --input-border: #ddd6fe;
     --divider: #ede9fe;
@@ -158,7 +158,7 @@
     background: var(--range-inactive-bg); color: var(--range-inactive-color);
     cursor: pointer; font-size: 17px; font-family: var(--font); transition: all 0.2s;
   }
-  .range-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+  .range-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 2px 8px rgba(104,55,183,0.3); }
 
   /* ── SETTINGS BAR ── */
   .settings-bar { display: flex; align-items: flex-start; justify-content: center; gap: 32px; margin-bottom: 20px; }
@@ -172,7 +172,7 @@
 
   /* ── MIC ANIMATION ── */
   .mic-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-  .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(124,58,237,0.3); animation: ripple 1.2s infinite; }
+  .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(104,55,183,0.3); animation: ripple 1.2s infinite; }
   .mic-core { width: 56px; height: 56px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; animation: pulse 1.2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
@@ -745,7 +745,7 @@ function startListening() {
   recognition.onresult = (e) => {
     let t = ""; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript;
     latestTranscript = t;
-    document.getElementById("live-transcript").textContent = '"' + t + '"';
+    document.getElementById("live-transcript").textContent = '"' + toWords(currentNumber, practiceLang) + '"';
   };
   recognition.onerror = (e) => {
     if (e.error==="no-speech") return;
@@ -759,13 +759,14 @@ function doneSpeaking() {
   const heard = latestTranscript.trim();
   if (!heard) { showError(UI[interfaceLang].noSpeech); return; }
   heardText = heard;
-  document.getElementById("confirm-heard-text").textContent = '"' + heard + '"';
+  const displayHeard = toWords(currentNumber, practiceLang);
+  document.getElementById("confirm-heard-text").textContent = '"' + displayHeard + '"';
   showMicStage("confirm");
 }
 
 function confirmHeard() {
   const correct = isMatch(heardText, currentNumber, practiceLang);
-  document.getElementById("result-heard-text").textContent = '"' + heardText + '"';
+  document.getElementById("result-heard-text").textContent = '"' + toWords(currentNumber, practiceLang) + '"';
   document.getElementById("correct-answer-text").textContent = toWords(currentNumber, practiceLang);
   document.getElementById("result-correct").classList.toggle("hidden", !correct);
   document.getElementById("result-wrong").classList.toggle("hidden", correct);
