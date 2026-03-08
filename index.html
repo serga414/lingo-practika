@@ -74,6 +74,7 @@
 
   .screen { display: none; }
   .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; position: relative; }
+  #screen-practice.active { justify-content: flex-start; padding-top: 24px; }
 
   /* ── CORNER BUTTONS ── */
   .corner-btn {
@@ -95,7 +96,7 @@
     transition: background 0.3s, border-color 0.3s;
   }
   .card-pad { padding: 40px 40px 48px; }
-  .card-pad-practice { padding: clamp(32px, 6vw, 56px); }
+  .card-pad-practice { padding: clamp(24px, 5vw, 40px); min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 
   /* ── TYPOGRAPHY ── */
   .app-title { font-size: 38px; font-weight: 300; letter-spacing: -1px; color: var(--text); margin-bottom: 6px; }
@@ -168,7 +169,7 @@
   .settings-divider { width: 1px; height: 48px; background: var(--divider); margin-top: 4px; }
 
   /* ── NUMBER DISPLAY ── */
-  .number-display { font-size: clamp(42px,10vw,72px); font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 8px; letter-spacing: -2px; }
+  .number-display { font-size: clamp(42px,10vw,72px); font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -2px; }
   .how-say { font-size: 26px; color: var(--text-muted); margin-bottom: 28px; }
 
   /* ── MIC ANIMATION ── */
@@ -176,6 +177,13 @@
   .mic-ripple { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(43,111,237,0.3); animation: ripple 1.2s infinite; }
   .mic-core { width: 56px; height: 56px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; animation: pulse 1.2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .speaker-wrap { position: relative; width: 72px; height: 72px; margin: 0 auto; display: grid; place-items: center; }
+  .speaker-ripple { position: absolute; inset: 0; border-radius: 50%; background: rgba(43,111,237,0.25); }
+  .speaker-core { position: relative; width: 64px; height: 64px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+  .speaker-core:hover { transform: scale(1.05); }
+  .speaker-wrap.playing .speaker-ripple { animation: ripple 1.2s infinite; }
+  .speaker-wrap.playing .speaker-core { animation: pulse 1.2s infinite; }
   @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
 
   /* ── INPUT BOXES ── */
@@ -291,8 +299,27 @@
     </div>
 
     <!-- Active practice -->
-    <div id="stage-active" class="hidden">
-      <div class="number-display" id="number-display"></div>
+    <div id="stage-active" class="hidden" style="width:100%">
+
+      <!-- Mode toggle — shown once number is generated -->
+      <div id="mode-toggle" style="display:flex;align-items:center;gap:0;background:var(--range-inactive-bg);border:1px solid var(--range-border);border-radius:100px;padding:3px;margin-bottom:20px;width:fit-content;margin-left:auto;margin-right:auto">
+        <button id="mode-speech-btn" onclick="setMode('speech')" style="border:none;cursor:pointer;padding:6px 18px;border-radius:100px;font-size:13px;font-weight:600;font-family:var(--font);transition:all 0.2s;background:var(--blue);color:#fff">See</button>
+        <button id="mode-listen-btn" onclick="setMode('listen')" style="border:none;cursor:pointer;padding:6px 18px;border-radius:100px;font-size:13px;font-weight:600;font-family:var(--font);transition:all 0.2s;background:transparent;color:var(--text-muted)">Listen</button>
+      </div>
+
+
+      <!-- Fixed-height main content zone — number OR speaker always sits here -->
+      <div style="height:120px;display:flex;align-items:center;justify-content:center;width:100%">
+        <div id="speaker-display" class="hidden" style="width:100%;display:flex;justify-content:center;align-items:center">
+          <div class="speaker-wrap" id="speaker-wrap">
+            <div class="speaker-ripple" id="speaker-ripple"></div>
+            <div class="speaker-core" id="speaker-core" onclick="speakNumber()" title="Tap to hear again">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="number-display" id="number-display"></div>
+      </div>
       <div class="how-say" id="how-say-text"></div>
 
       <!-- idle -->
@@ -387,6 +414,30 @@
       <div id="stage-answered" class="hidden" style="margin-top:16px">
         <button class="btn btn-blue btn-lg" onclick="generate()" id="next-btn">Next number →</button>
       </div>
+
+      <!-- listening mode stage -->
+      <div id="stage-listen" class="hidden">
+        <div style="margin-bottom:16px">
+          <input type="number" id="listen-input" placeholder="Type the number you heard…" style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:18px;font-family:var(--font);text-align:center;outline:none;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--input-border)'" onkeydown="if(event.key==='Enter')checkListenAnswer()"/>
+        </div>
+        <button class="btn btn-blue btn-lg" onclick="checkListenAnswer()" id="listen-submit-btn">Check answer</button>
+      </div>
+
+      <!-- listening result -->
+      <div id="stage-listen-result" class="hidden" style="margin-top:8px">
+        <div id="listen-result-correct" class="hidden">
+          <p style="color:var(--green);font-weight:600;font-size:26px;margin-bottom:8px">🎉 Correct!</p>
+        </div>
+        <div id="listen-result-wrong" class="hidden">
+          <p style="color:var(--orange);font-weight:600;font-size:18px;margin-bottom:8px" id="listen-wrong-text">Not quite!</p>
+          <div class="answer-box" style="margin-bottom:12px">
+            <span>✓ Answer:</span> <strong id="listen-correct-answer"></strong>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-blue btn-lg" onclick="generate()" id="listen-next-btn">Next number →</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -462,9 +513,8 @@ const UI = {
     appName:"Lingo Practika", chooseInterface:"Interface language", choosePractice:"Practice language",
     startBtn:"Start practising →", featureTitle:"Lingo Numero", featureDesc:"Practise numbers",
     practiceLabel:{es:"Spanish numbers",en:"English numbers",ru:"Russian numbers"},
-    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
-    prompt:{es:"Press generate to practise Spanish numbers",en:"Press generate to practise English numbers",ru:"Press generate to practise Russian numbers"},
-    generate:"Generate number", revealAnswer:"Reveal answer", listeningPrompt:"Listening… speak your answer",
+    howDoYouSay:"How do you say it?",
+    prompt:{es:"Press generate to practise Spanish numbers",en:"Press generate to practise English numbers",ru:"Press generate to practise Russian numbers"}, revealAnswer:"Reveal answer", listeningPrompt:"Listening… speak your answer",
     doneSpeaking:"✓ Done speaking", cancel:"Cancel", iHeard:"I heard you say",
     didIHearCorrectly:"Did I hear you correctly?", yesThatsRight:"✓ Yes, that's right", tryAgain:"Try again",
     youSaid:"You said", correctAnswer:"✓ Correct answer:", correctPronunciation:"🎉 Correct pronunciation!",
@@ -472,12 +522,13 @@ const UI = {
     didYouGetItRight:"Did you get it right?", yes:"✓ Yes!", notYet:"✗ Not yet", next:"Next number →",
     noSpeech:"Nothing was heard. Please try again.", noSupport:"Speech recognition not supported. Use Chrome.",
     micError:"Microphone error: ", dismiss:"Dismiss", footer:"Lingo Practika · Lingo Numero",
+    whatDidYouHear:"What did you hear?",
   },
   ru: {
     appName:"Lingo Practika", chooseInterface:"Язык интерфейса", choosePractice:"Язык практики",
     startBtn:"Начать →", featureTitle:"Lingo Numero", featureDesc:"Практикуйте числа",
     practiceLabel:{es:"Испанские числа",en:"Английские числа",ru:"Русские числа"},
-    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
+    howDoYouSay:"Как это сказать?",
     prompt:{es:"Нажмите «Сгенерировать» для практики испанских чисел",en:"Нажмите «Сгенерировать» для практики английских чисел",ru:"Нажмите «Сгенерировать» для практики русских чисел"},
     generate:"Сгенерировать число", revealAnswer:"Показать ответ", listeningPrompt:"Слушаю… произнесите ответ",
     doneSpeaking:"✓ Готово", cancel:"Отмена", iHeard:"Я услышал",
@@ -487,12 +538,13 @@ const UI = {
     didYouGetItRight:"Вы ответили правильно?", yes:"✓ Да!", notYet:"✗ Нет", next:"Следующее число →",
     noSpeech:"Ничего не услышано. Попробуйте снова.", noSupport:"Распознавание речи не поддерживается. Используйте Chrome.",
     micError:"Ошибка микрофона: ", dismiss:"Закрыть", footer:"Lingo Practika · Lingo Numero",
+    whatDidYouHear:"Что вы услышали?",
   },
   es: {
     appName:"Lingo Practika", chooseInterface:"Idioma de la interfaz", choosePractice:"Idioma de práctica",
     startBtn:"Comenzar →", featureTitle:"Lingo Numero", featureDesc:"Practica números",
     practiceLabel:{es:"Números en español",en:"Números en inglés",ru:"Números en ruso"},
-    howDoYouSay:{es:"¿Cómo se dice?",en:"How do you say it?",ru:"Как это будет?"},
+    howDoYouSay:"¿Cómo se dice?",
     prompt:{es:"Pulsa generar para practicar números en español",en:"Pulsa generar para practicar números en inglés",ru:"Pulsa generar para practicar números en ruso"},
     generate:"Generar número", revealAnswer:"Mostrar respuesta", listeningPrompt:"Escuchando… di tu respuesta",
     doneSpeaking:"✓ Listo", cancel:"Cancelar", iHeard:"Escuché",
@@ -502,6 +554,7 @@ const UI = {
     didYouGetItRight:"¿Lo dijiste bien?", yes:"✓ ¡Sí!", notYet:"✗ Todavía no", next:"Siguiente número →",
     noSpeech:"No se detectó voz. Inténtalo de nuevo.", noSupport:"Reconocimiento de voz no compatible. Usa Chrome.",
     micError:"Error de micrófono: ", dismiss:"Cerrar", footer:"Lingo Practika · Lingo Numero",
+    whatDidYouHear:"¿Qué escuchaste?",
   }
 };
 
@@ -521,6 +574,7 @@ let interfaceLang = "en";
 let practiceLang = "es";
 let darkMode = false;
 let rangeIdx = 0;
+let practiceMode = "speech"; // speech | listen
 let currentNumber = null;
 let micStage = "idle"; // idle | listening | confirm | result | error | reveal
 let heardText = "";
@@ -621,7 +675,7 @@ function updateUI() {
     document.getElementById("prompt-text").textContent = t.prompt[practiceLang];
     document.getElementById("prompt-flag").innerHTML = flagSVG(practiceLang, "md");
   }
-  document.getElementById("how-say-text").textContent = t.howDoYouSay[practiceLang];
+  document.getElementById("how-say-text").textContent = (practiceMode === "listen") ? t.whatDidYouHear : t.howDoYouSay;
   renderPracticeLangRows();
   renderInterfaceFlags();
   renderSettingsFlags();
@@ -689,6 +743,21 @@ function restoreButtons() {
   document.getElementById("stage-answered").classList.add("hidden");
 }
 
+function setMode(mode) {
+  practiceMode = mode;
+  const speechBtn = document.getElementById("mode-speech-btn");
+  const listenBtn = document.getElementById("mode-listen-btn");
+  if (mode === "speech") {
+    speechBtn.style.background = "var(--blue)"; speechBtn.style.color = "#fff";
+    listenBtn.style.background = "transparent"; listenBtn.style.color = "var(--text-muted)";
+  } else {
+    listenBtn.style.background = "var(--blue)"; listenBtn.style.color = "#fff";
+    speechBtn.style.background = "transparent"; speechBtn.style.color = "var(--text-muted)";
+  }
+  // If a number is already showing, regenerate in new mode
+  if (currentNumber !== null) generate();
+}
+
 function generate() {
   const r = RANGES[rangeIdx];
   let n;
@@ -702,9 +771,53 @@ function generate() {
   document.getElementById("stage-empty").classList.add("hidden");
   document.getElementById("stage-active").classList.remove("hidden");
   document.getElementById("stage-answered").classList.add("hidden");
-  document.getElementById("number-display").textContent = n.toLocaleString("en-US");
-  document.getElementById("how-say-text").textContent = UI[interfaceLang].howDoYouSay[practiceLang];
-  showMicStage("idle");
+  document.getElementById("stage-listen").classList.add("hidden");
+  document.getElementById("stage-listen-result").classList.add("hidden");
+
+  if (practiceMode === "listen") {
+    // Hide all mic stages
+    ["idle","listening","confirm","result","error","reveal"].forEach(s => {
+      const el = document.getElementById("mic-stage-"+s);
+      if (el) { el.style.display = "none"; el.classList.remove("active"); }
+    });
+    // Hide the number, show animated speaker
+    document.getElementById("number-display").style.display = "none";
+    document.getElementById("how-say-text").textContent = UI[interfaceLang].whatDidYouHear || "What did you hear?";
+    document.getElementById("speaker-display").classList.remove("hidden");
+    document.getElementById("stage-listen").classList.remove("hidden");
+    document.getElementById("listen-input").value = "";
+    document.getElementById("listen-input").focus();
+    // Auto-play after brief delay
+    setTimeout(() => speakNumber(), 600);
+  } else {
+    document.getElementById("number-display").style.display = "";
+    document.getElementById("speaker-display").classList.add("hidden");
+    document.getElementById("number-display").textContent = n.toLocaleString("en-US");
+    document.getElementById("how-say-text").textContent = UI[interfaceLang].howDoYouSay;
+    showMicStage("idle");
+  }
+}
+
+function checkListenAnswer() {
+  const input = document.getElementById("listen-input").value.trim();
+  if (!input) return;
+  const typed = parseInt(input, 10);
+  const correct = typed === currentNumber;
+  document.getElementById("stage-listen").classList.add("hidden");
+  document.getElementById("stage-listen-result").classList.remove("hidden");
+  document.getElementById("speaker-display").classList.add("hidden");
+  // Reveal the actual number now
+  document.getElementById("number-display").textContent = currentNumber.toLocaleString("en-US");
+  document.getElementById("number-display").style.display = "";
+  if (correct) {
+    document.getElementById("listen-result-correct").classList.remove("hidden");
+    document.getElementById("listen-result-wrong").classList.add("hidden");
+  } else {
+    document.getElementById("listen-result-correct").classList.add("hidden");
+    document.getElementById("listen-result-wrong").classList.remove("hidden");
+    document.getElementById("listen-correct-answer").textContent = currentNumber.toLocaleString("en-US");
+  }
+  markAnswer(correct);
 }
 
 function showEmptyState() {
@@ -737,11 +850,19 @@ function revealAnswer() {
 function speakNumber() {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(toWords(currentNumber, practiceLang));
-  const langMap = { es: "es-ES", en: "en-US", ru: "ru-RU" };
-  utterance.lang = langMap[practiceLang] || "es-ES";
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
+  const wrap = document.getElementById("speaker-wrap");
+  if (wrap) wrap.classList.remove("playing");
+  // Small delay needed after cancel for browser to reset properly
+  setTimeout(() => {
+    const utterance = new SpeechSynthesisUtterance(toWords(currentNumber, practiceLang));
+    const langMap = { es: "es-ES", en: "en-US", ru: "ru-RU" };
+    utterance.lang = langMap[practiceLang] || "es-ES";
+    utterance.rate = 0.9;
+    if (wrap) wrap.classList.add("playing");
+    utterance.onend = () => { if (wrap) wrap.classList.remove("playing"); };
+    utterance.onerror = () => { if (wrap) wrap.classList.remove("playing"); };
+    window.speechSynthesis.speak(utterance);
+  }, 150);
 }
 
 function resetMic() {
@@ -825,7 +946,9 @@ function markAnswer(correct) {
   document.getElementById("result-correct-btns").classList.add("hidden");
   document.getElementById("result-wrong-btns").classList.add("hidden");
   document.querySelectorAll("#mic-stage-reveal .btn-row").forEach(r=>r.classList.add("hidden"));
-  document.getElementById("stage-answered").classList.remove("hidden");
+  if (practiceMode !== "listen") {
+    document.getElementById("stage-answered").classList.remove("hidden");
+  }
 }
 
 function updateScore() {
