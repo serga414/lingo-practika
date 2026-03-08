@@ -370,7 +370,12 @@
 
       <!-- reveal -->
       <div id="mic-stage-reveal" class="stage" style="display:none">
-        <div class="answer-box" style="font-size:clamp(20px,4vw,28px);margin-bottom:20px" id="revealed-answer"></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
+          <div class="answer-box" style="font-size:clamp(20px,4vw,28px)" id="revealed-answer"></div>
+          <button onclick="speakNumber()" title="Hear pronunciation" style="background:none;border:none;cursor:pointer;padding:4px;opacity:0.6;transition:opacity 0.2s;flex-shrink:0" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
         <p class="muted" id="did-you-get-it-text" style="font-size:14px;margin-bottom:12px">Did you get it right?</p>
         <div class="btn-row">
           <button class="btn btn-green btn-sm" onclick="markAnswer(true)" id="yes-btn">✓ Yes!</button>
@@ -727,6 +732,16 @@ function showMicStage(stage) {
 function revealAnswer() {
   document.getElementById("revealed-answer").textContent = toWords(currentNumber, practiceLang);
   showMicStage("reveal");
+}
+
+function speakNumber() {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(toWords(currentNumber, practiceLang));
+  const langMap = { es: "es-ES", en: "en-US", ru: "ru-RU" };
+  utterance.lang = langMap[practiceLang] || "es-ES";
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
 }
 
 function resetMic() {
