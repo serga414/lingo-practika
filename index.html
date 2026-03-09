@@ -426,12 +426,12 @@
       <!-- listening result -->
       <div id="stage-listen-result" class="hidden" style="margin-top:8px">
         <div id="listen-result-correct" class="hidden">
-          <p style="color:var(--green);font-weight:600;font-size:26px;margin-bottom:8px">🎉 Correct!</p>
+          <p style="color:var(--green);font-weight:600;font-size:26px;margin-bottom:8px" id="listen-correct-text">🎉 Correct!</p>
         </div>
         <div id="listen-result-wrong" class="hidden">
           <p style="color:var(--orange);font-weight:600;font-size:18px;margin-bottom:8px" id="listen-wrong-text">Not quite!</p>
           <div class="answer-box" style="margin-bottom:12px">
-            <span>✓ Answer:</span> <strong id="listen-correct-answer"></strong>
+            <span id="listen-answer-label">✓ Answer:</span> <strong id="listen-correct-answer"></strong>
           </div>
         </div>
         <div class="btn-row" style="margin-top:12px">
@@ -522,7 +522,9 @@ const UI = {
     didYouGetItRight:"Did you get it right?", yes:"✓ Yes!", notYet:"✗ Not yet", next:"Next number →",
     noSpeech:"Nothing was heard. Please try again.", noSupport:"Speech recognition not supported. Use Chrome.",
     micError:"Microphone error: ", dismiss:"Dismiss", footer:"Lingo Practika · Lingo Numero",
-    whatDidYouHear:"What did you hear?",
+    whatDidYouHear:"What did you hear?", seeMode:"See", listenMode:"Listen",
+    checkAnswer:"Check answer", typeHeard:"Type the number you heard…",
+    listenCorrect:"🎉 Correct!", listenNotQuite:"Not quite!", listenAnswer:"✓ Answer:",
   },
   ru: {
     appName:"Lingo Practika", chooseInterface:"Язык интерфейса", choosePractice:"Язык практики",
@@ -538,7 +540,9 @@ const UI = {
     didYouGetItRight:"Вы ответили правильно?", yes:"✓ Да!", notYet:"✗ Нет", next:"Следующее число →",
     noSpeech:"Ничего не услышано. Попробуйте снова.", noSupport:"Распознавание речи не поддерживается. Используйте Chrome.",
     micError:"Ошибка микрофона: ", dismiss:"Закрыть", footer:"Lingo Practika · Lingo Numero",
-    whatDidYouHear:"Что вы услышали?",
+    whatDidYouHear:"Что вы услышали?", seeMode:"Смотреть", listenMode:"Слушать",
+    checkAnswer:"Проверить ответ", typeHeard:"Введите число которое вы услышали…",
+    listenCorrect:"🎉 Правильно!", listenNotQuite:"Не совсем!", listenAnswer:"✓ Ответ:",
   },
   es: {
     appName:"Lingo Practika", chooseInterface:"Idioma de la interfaz", choosePractice:"Idioma de práctica",
@@ -554,7 +558,9 @@ const UI = {
     didYouGetItRight:"¿Lo dijiste bien?", yes:"✓ ¡Sí!", notYet:"✗ Todavía no", next:"Siguiente número →",
     noSpeech:"No se detectó voz. Inténtalo de nuevo.", noSupport:"Reconocimiento de voz no compatible. Usa Chrome.",
     micError:"Error de micrófono: ", dismiss:"Cerrar", footer:"Lingo Practika · Lingo Numero",
-    whatDidYouHear:"¿Qué escuchaste?",
+    whatDidYouHear:"¿Qué escuchaste?", seeMode:"Ver", listenMode:"Escuchar",
+    checkAnswer:"Verificar respuesta", typeHeard:"Escribe el número que escuchaste…",
+    listenCorrect:"🎉 ¡Correcto!", listenNotQuite:"¡No del todo!", listenAnswer:"✓ Respuesta:",
   }
 };
 
@@ -670,6 +676,15 @@ function updateUI() {
   document.getElementById("not-yet-btn").textContent = t.notYet;
   document.getElementById("next-btn").textContent = t.next;
   document.getElementById("practice-footer").textContent = t.footer;
+  document.getElementById("mode-speech-btn").textContent = t.seeMode;
+  document.getElementById("mode-listen-btn").textContent = t.listenMode;
+  document.getElementById("listen-submit-btn").textContent = t.checkAnswer;
+  document.getElementById("listen-input").placeholder = t.typeHeard;
+  document.getElementById("listen-next-btn").textContent = t.next;
+  document.getElementById("listen-correct-text").textContent = t.listenCorrect;
+  document.getElementById("listen-wrong-text").textContent = t.listenNotQuite;
+  document.getElementById("listen-answer-label").textContent = t.listenAnswer;
+  document.getElementById("try-again-error-btn").textContent = "🎤 " + t.tryAgain;
   // update prompt
   if (!currentNumber) {
     document.getElementById("prompt-text").textContent = t.prompt[practiceLang];
